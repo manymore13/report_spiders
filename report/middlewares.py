@@ -2,11 +2,16 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import json
+import logging
+import re
+import sqlite3
 
+import scrapy.http
 from scrapy import signals
-
 # useful for handling different item types with a single interface
-from itemadapter import is_item, ItemAdapter
+from scrapy.http import TextResponse
+from scrapy.settings import Settings
 
 
 class ReportSpiderMiddleware:
@@ -80,9 +85,9 @@ class ReportDownloaderMiddleware:
         #   installed downloader middleware will be called
         return None
 
-    def process_response(self, request, response, spider):
+    def process_response(self, request, response: scrapy.http.Response, spider):
         # Called with the response returned from the downloader.
-
+        logging.debug("process_response ----------{}".format(response.url))
         # Must either;
         # - return a Response object
         # - return a Request object
@@ -101,3 +106,81 @@ class ReportDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+
+
+class ReportPdfExitMiddleware:
+
+    def __init__(self):
+        self.table_name = "report_pdf"
+        self.cursor = None
+        self.conn = None
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        # This method is used by Scrapy to create your spiders.
+        s = cls()
+        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
+        return s
+
+    def process_response(self, request, response: scrapy.http.Response, spider):
+        # Called with the response returned from the downloader.
+        # logging.debug("process_response ----------{}".format(response.url))
+        # Must either;
+        # - return a Response object
+        # - return a Request object
+        # - or raise IgnoreRequest
+        content_type = response.headers.get('Content-Type', b'').decode('utf-8').lower()
+        url = 'reportapi.eastmoney.com'
+        if url not in response.url:
+            return response
+        data_list = re.findall(r"\((.*?)\)", response.text)
+        if len(data_list) == 0:
+            return response
+        try:
+            report_content = data_list[0]
+            report_json = json.loads(report_content)
+            report_list = report_json['data']
+        except:
+            return response
+
+        new_report_list = []
+        for report_data in report_list:
+            info_code = report_data['infoCode']
+            if not self.exit_data_db(info_code):
+                new_report_list.append(report_data)
+        report_json['data'] = new_report_list
+        modified_json_str = json.dumps(report_json)
+        modified_response = TextResponse(
+            url=response.url,
+            status=response.status,
+            headers=response.headers,
+            body=modified_json_str.encode('utf-8')
+        )
+        return modified_response
+
+    def exit_data_db(self, info_code):
+        self.cursor.execute('SELECT * FROM {} WHERE info_code = ?'.format(self.table_name), (info_code,))
+        existing_data = self.cursor.fetchone()
+        return existing_data is not None
+
+    def process_exception(self, request, exception, spider):
+        # Called when a download handler or a process_request()
+        # (from other downloader middleware) raises an exception.
+
+        # Must either:
+        # - return None: continue processing this exception
+        # - return a Response object: stops process_exception() chain
+        # - return a Request object: stops process_exception() chain
+        pass
+
+    def spider_opened(self, spider):
+        spider.logger.info("Spider opened: %s" % spider.name)
+        settings: Settings = spider.settings
+        db_name = settings.get("SQLITE_DB_NAME", "report.db")
+        # 连接到 SQLite 数据库
+        self.conn = sqlite3.connect(db_name)
+        self.cursor = self.conn.cursor()
+
+    def close_spider(self, spider):
+        # 断开数据库连接
+        self.conn.close()

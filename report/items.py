@@ -13,5 +13,6 @@ class ReportItem(scrapy.Item):
     org_name = scrapy.Field()
     publish_date = scrapy.Field()
     industry_name = scrapy.Field()
+    info_code = scrapy.Field()
     pdf_url = scrapy.Field()
     pass

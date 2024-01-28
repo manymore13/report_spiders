@@ -1,4 +1,8 @@
 from scrapy import cmdline
 
-cmdline.execute('scrapy crawl east_report -a codes=538,738 -a page_size=5 -a begin_time=2024-01-20 -a '
-                'end_time=2024-01-27 -a page_no=1'.split())
+cmdline.execute('scrapy crawl east_report -a codes=538 -a count=300 -a begin_time=2024-01-28 -a '
+                'end_time=2024-01-28'.split())
+
+
+# cmdline.execute('scrapy crawl east_report -a codes=538 -a count=100 -a begin_time=2024-01-28 -a '
+#                 'end_time=2024-01-28'.split())
