@@ -1,8 +1,10 @@
+import datetime
+
 from scrapy import cmdline
 
-cmdline.execute('scrapy crawl east_report -a codes=538 -a count=300 -a begin_time=2024-01-28 -a '
-                'end_time=2024-01-28'.split())
+now = datetime.datetime.now()
+end_date = now.strftime("%Y-%m-%d")
+start_date = (now - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
 
-
-# cmdline.execute('scrapy crawl east_report -a codes=538 -a count=100 -a begin_time=2024-01-28 -a '
-#                 'end_time=2024-01-28'.split())
+cmdline.execute('scrapy crawl east_report -a codes=* -a count=101 -a begin_time={} -a end_time={}'.format(start_date,
+                                                                                                          end_date).split())

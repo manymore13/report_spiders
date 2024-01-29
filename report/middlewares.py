@@ -133,7 +133,7 @@ class ReportPdfExitMiddleware:
         url = 'reportapi.eastmoney.com'
         if url not in response.url:
             return response
-        data_list = re.findall(r"\((.*?)\)", response.text)
+        data_list = re.findall(r"\((.*)\)", response.text)
         if len(data_list) == 0:
             return response
         try:

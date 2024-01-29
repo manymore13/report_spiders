@@ -34,7 +34,7 @@ class EastReportSpider(scrapy.Spider):
 
         "ITEM_PIPELINES": {
             "report.pipelines.ReportSqlitePipeline": 300,
-            "report.pipelines.ReportPdfPipeline": 301,
+            # "report.pipelines.ReportPdfPipeline": 301,
             "report.pipelines.ReportCsvPipeline": 302,
 
         }
@@ -51,7 +51,7 @@ class EastReportSpider(scrapy.Spider):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.industry_code_list = getattr(self, "codes", '*,738').split(',')
+        self.industry_code_list = getattr(self, "codes", '*').split(',')
         self.count: int = getattr(self, "count", '50')
         self.begin_time = getattr(self, "begin_time", '2023-11-26')
         self.end_time: str = getattr(self, "end_time", '2023-11-26')
@@ -83,7 +83,7 @@ class EastReportSpider(scrapy.Spider):
     def add_other_report_req_url(self, industry_code, total_page) -> Iterable[Request]:
         self.is_gened_url_codes.add(industry_code)
 
-        for page_no in list(range(2, total_page)):
+        for page_no in list(range(2, total_page + 1)):
             req_url = self.gene_report_req_url(industry_code, self.count, page_no)
             yield Request(url=req_url, meta={'industry_code': industry_code, 'page_no': page_no},
                           callback=self.parse_report)
@@ -94,13 +94,15 @@ class EastReportSpider(scrapy.Spider):
         total_page = report_json['TotalPage']
         size = report_json['size']
         page_no = response.meta['page_no']
+        hits = report_json['hits']
         industry_code = response.meta['industry_code']
         if industry_code not in self.is_gened_url_codes:
-            self.log("industry_code= {}, total_page={}, size = {}, data={}".format(industry_code, total_page, size,
-                                                                                   len(report_list)))
+            self.log(
+                "industry_code= {}, hits = {} total_page={}, size = {}, data={}".format(industry_code, hits, total_page,
+                                                                                        size, len(report_list)))
             if int(page_no) < int(total_page):
                 self.is_gened_url_codes.add(industry_code)
-                for next_page_no in list(range(2, total_page)):
+                for next_page_no in list(range(2, total_page + 1)):
                     req_url = self.gene_report_req_url(industry_code, self.count, next_page_no)
                     yield Request(url=req_url, meta={'industry_code': industry_code, 'page_no': next_page_no},
                                   callback=self.parse_report)
