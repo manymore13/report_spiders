@@ -97,4 +97,4 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 FILES_STORE = "gen_east_report"
 
-SQLITE_DB_NAME = os.path.join(FILES_STORE, "report.db")
+SQLITE_DB_NAME = gen_east_report\\report.db
