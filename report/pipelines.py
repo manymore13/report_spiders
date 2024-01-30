@@ -73,7 +73,6 @@ class ReportCsvPipeline:
 
 
 class ReportSqlitePipeline:
-
     """研报插入sqlite数据库"""
 
     def __init__(self):
@@ -118,12 +117,6 @@ class ReportSqlitePipeline:
         if existing_data is None:
             # 插入数据
             self.insert_item(item)
-
-        #     # 更新数据
-        #     self.cursor.execute('UPDATE mytable SET email = ? WHERE info_code = ?', (item['email'], item['info_code']))
-        # else:
-        #     # 插入数据
-        #     self.cursor.execute('INSERT INTO mytable (name, email) VALUES (?, ?)', (item['name'], item['email']))
 
         return item
 

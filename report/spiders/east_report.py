@@ -25,19 +25,28 @@ def load_industry() -> dict:
 
 
 class EastReportSpider(scrapy.Spider):
+
     """东方财富行业研报"""
+
+    GITHUB_PIPELINES = {
+        "report.pipelines.ReportSqlitePipeline": 300,
+        # "report.pipelines.ReportPdfPipeline": 301,
+        "report.github_pipelines.ReportCsvPipeline": 302,
+    }
 
     custom_settings = {
         "DOWNLOADER_MIDDLEWARES": {
             "report.middlewares.ReportPdfExitMiddleware": 543,
         },
 
-        "ITEM_PIPELINES": {
-            "report.pipelines.ReportSqlitePipeline": 300,
-            # "report.pipelines.ReportPdfPipeline": 301,
-            "report.pipelines.ReportCsvPipeline": 302,
+        "ITEM_PIPELINES": GITHUB_PIPELINES
 
-        }
+        # "ITEM_PIPELINES": {
+        #     "report.pipelines.ReportSqlitePipeline": 300,
+        #     # "report.pipelines.ReportPdfPipeline": 301,
+        #     "report.pipelines.ReportCsvPipeline": 302,
+        #
+        # }
     }
 
     name = "east_report"
