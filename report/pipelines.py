@@ -83,6 +83,10 @@ class ReportSqlitePipeline:
 
     def open_spider(self, spider):
         settings: Settings = spider.settings
+        sqlite_db_path = settings.get("SQLITE_DB_PATH")
+        if not os.path.exists(sqlite_db_path):
+            os.makedirs(sqlite_db_path)
+
         db_name = settings.get("SQLITE_DB_NAME", "report.db")
         logging.debug("---db_name " + db_name)
         # 连接到 SQLite 数据库
