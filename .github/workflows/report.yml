@@ -15,7 +15,7 @@ permissions:
 jobs:
   report_build_push:
 
-    runs-on: windows-2022
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
