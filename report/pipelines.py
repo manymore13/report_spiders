@@ -84,6 +84,7 @@ class ReportSqlitePipeline:
     def open_spider(self, spider):
         settings: Settings = spider.settings
         db_name = settings.get("SQLITE_DB_NAME", "report.db")
+        logging.debug("---db_name " + db_name)
         # 连接到 SQLite 数据库
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
