@@ -44,6 +44,7 @@ jobs:
         destination-github-username: 'manymore13'
         destination-repository-name: 'report'
         target-branch: main
+        target-directory: eastmoney
         commit-message: "东财行业研报更新"
         
           

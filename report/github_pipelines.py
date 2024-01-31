@@ -83,7 +83,7 @@ class ReportCsvPipeline:
         self.cursor.execute(sql)
         data_items = self.cursor.fetchall()
         report_list = []
-        logging.debug("industry_name: {}, report size :".format(industry_name, data_items))
+        logging.debug("industry_name: {}, report size :{}".format(industry_name, data_items))
         for data_item in data_items:
             report = ReportItem()
             report['title'] = data_item[0]
