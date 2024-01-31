@@ -67,6 +67,7 @@ class EastReportSpider(scrapy.Spider):
         self.industry_code_dic = load_industry()
         self.check_input_code()
         self.is_gened_url_codes = set()
+        self.table_name = 'eastmoney'
 
     def check_input_code(self):
         for input_code in self.industry_code_list:

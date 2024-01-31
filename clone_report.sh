@@ -9,5 +9,5 @@ mkdir target
 cd target
 git clone https://github.com/manymore13/report.git
 cd ..
-mkdir gen_east_report
-cp -r target/report/* gen_east_report
+mkdir gen_report
+cp -r target/report/* gen_report

@@ -21,7 +21,7 @@ class ReportCsvPipeline:
     def __init__(self):
         self.cursor: Cursor = None
         self.conn: Connection = None
-        self.table_name = "report_pdf"
+        self.table_name = "report"
 
         self.industry_report_dict: dict = {}
         self.title = ['研报名称', '机构名称', '发布时间', '行业', '研报地址']
@@ -36,6 +36,10 @@ class ReportCsvPipeline:
         return item
 
     def open_spider(self, spider):
+
+        if hasattr(spider, 'table_name'):
+            self.table_name = getattr(spider, 'table_name')
+
         settings: Settings = spider.settings
         sqlite_db_path = settings.get("SQLITE_DB_PATH")
         if not os.path.exists(sqlite_db_path):
@@ -52,11 +56,12 @@ class ReportCsvPipeline:
         industry_name_list = self.get_all_industry_name(start_date, end_date)
         settings = spider.settings
         file_store = settings.get("FILES_STORE")
-        if not os.path.exists(file_store):
-            os.makedirs(file_store)
+        cvs_path = os.path.join(file_store, self.table_name)
+        if not os.path.exists(cvs_path):
+            os.makedirs(cvs_path)
         for industry_name in industry_name_list:
             report_item_list = self.get_report_info_from_db(industry_name, start_date, end_date)
-            self.write_csv(file_store, industry_name + ".csv", report_item_list)
+            self.write_csv(cvs_path, industry_name + ".csv", report_item_list)
         self.conn.close()
 
     def write_csv(self, csv_path, csv_name, report_item_list):
@@ -78,12 +83,12 @@ class ReportCsvPipeline:
         where = "industry_name = '{}' AND publish_date between '{}' AND '{}' ORDER BY publish_date DESC".format(
             industry_name, start_date, end_date)
 
-        sql = "select {} from report_pdf where {}".format(select, where)
+        sql = "select {} from {} where {}".format(select, self.table_name, where)
 
         self.cursor.execute(sql)
         data_items = self.cursor.fetchall()
         report_list = []
-        logging.debug("industry_name: {}, report size :{}".format(industry_name, data_items))
+        logging.debug("industry_name: {}, report size :{}".format(industry_name, len(data_items)))
         for data_item in data_items:
             report = ReportItem()
             report['title'] = data_item[0]
@@ -98,9 +103,9 @@ class ReportCsvPipeline:
 
         """从数据库获取行业类别"""
 
-        sql = ("select DISTINCT industry_name from report_pdf where publish_date between '{}' AND '{}' ORDER BY "
+        sql = ("select DISTINCT industry_name from {} where publish_date between '{}' AND '{}' ORDER BY "
                "publish_date DESC").format(
-            start_date, end_date)
+            self.table_name, start_date, end_date)
         self.cursor.execute(sql)
         db_industry_name_list = self.cursor.fetchall()
         result_industry_name_list = []

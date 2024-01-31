@@ -78,9 +78,11 @@ class ReportSqlitePipeline:
     def __init__(self):
         self.cursor: Cursor = None
         self.conn: Connection = None
-        self.table_name = "report_pdf"
+        self.table_name = "report"
 
-    def open_spider(self, spider):
+    def open_spider(self, spider: scrapy.Spider):
+        if hasattr(spider, 'table_name'):
+            self.table_name = getattr(spider,'table_name')
         settings: Settings = spider.settings
         sqlite_db_path = settings.get("SQLITE_DB_PATH")
         if not os.path.exists(sqlite_db_path):
@@ -136,3 +138,4 @@ class ReportSqlitePipeline:
         self.cursor.execute('DELETE FROM mytable WHERE name = ?', (item['name'],))
         self.conn.commit()
         return item
+

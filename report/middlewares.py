@@ -110,15 +110,17 @@ class ReportDownloaderMiddleware:
 
 class ReportPdfExitMiddleware:
 
-    def __init__(self):
-        self.table_name = "report_pdf"
+    def __init__(self, table_name):
+        self.table_name = table_name
         self.cursor = None
         self.conn = None
 
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls()
+        table_name = getattr(crawler.spider, 'table_name', 'table_name')
+
+        s = cls(table_name)
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 

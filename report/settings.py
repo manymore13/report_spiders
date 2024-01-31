@@ -95,7 +95,7 @@ REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
-FILES_STORE = "gen_east_report"
+FILES_STORE = "gen_report"
 
 SQLITE_DB_PATH = os.path.join(".", FILES_STORE)
 SQLITE_DB_NAME = os.path.join(SQLITE_DB_PATH, 'report.db')
