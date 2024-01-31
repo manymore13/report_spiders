@@ -40,11 +40,11 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         create-target-branch-if-needed: true
-        source-directory: 'gen_east_report/'
+        source-directory: './gen_east_report/'
         destination-github-username: 'manymore13'
         destination-repository-name: 'report'
         target-branch: main
-        target-directory: eastmoney
+        target-directory: ./eastmoney/
         commit-message: "东财行业研报更新"
         
           
