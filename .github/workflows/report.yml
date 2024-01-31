@@ -29,13 +29,7 @@ jobs:
         pip install -r requirements.txt
     - name: clone report
       run: |
-        rm -r target
-        mkdir target
-        cd target
-        git clone https://github.com/manymore13/report.git
-        cd .. 
-        mkdir gen_east_report
-        cp -r target/report/* gen_east_report
+        ./clone_report.sh
     - name: generate report
       run: |
         python run.py
