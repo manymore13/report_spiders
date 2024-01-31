@@ -29,6 +29,7 @@ jobs:
         pip install -r requirements.txt
     - name: clone report
       run: |
+        chmod +x clone_report.sh
         ./clone_report.sh
     - name: generate report
       run: |
