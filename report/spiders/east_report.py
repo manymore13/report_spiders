@@ -32,6 +32,7 @@ class EastReportSpider(scrapy.Spider):
         "report.pipelines.ReportSqlitePipeline": 300,
         # "report.pipelines.ReportPdfPipeline": 301,
         "report.github_pipelines.ReportCsvPipeline": 302,
+        "report.github_pipelines.TodayReportPipeline": 303,
     }
 
     custom_settings = {

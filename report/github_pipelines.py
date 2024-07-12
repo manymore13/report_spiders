@@ -2,6 +2,7 @@ import csv
 import logging
 import os
 import sqlite3
+from datetime import datetime
 from sqlite3 import Cursor, Connection
 
 from scrapy.settings import Settings
@@ -13,6 +14,76 @@ from report.spiders.east_report import EastReportSpider
     github 专用管道
 
 """
+
+
+def get_today_time_str():
+    time_str = datetime.today().strftime("%Y-%m-%d")
+    return time_str
+
+
+class TodayReportPipeline:
+    """今日日报"""
+
+    def __init__(self):
+        self.cursor = None
+        self.conn = None
+        self.table_name = None
+        self.file_name = "today.md"
+
+    def open_spider(self, spider):
+        if hasattr(spider, 'table_name'):
+            self.table_name = getattr(spider, 'table_name')
+
+        settings: Settings = spider.settings
+        sqlite_db_path = settings.get("SQLITE_DB_PATH")
+        if not os.path.exists(sqlite_db_path):
+            os.makedirs(sqlite_db_path)
+        db_name = settings.get("SQLITE_DB_NAME", "report.db")
+        logging.debug("TodayReportPipeline: github db_name " + db_name)
+        # 连接到 SQLite 数据库
+        self.conn = sqlite3.connect(db_name)
+        self.cursor = self.conn.cursor()
+
+    def close_spider(self, spider: EastReportSpider):
+        report_list = self.get_today_reports()
+        self.conn.close()
+        settings = spider.settings
+        file_store = settings.get("FILES_STORE")
+        root_path = os.path.join(file_store, self.table_name)
+        self.write_markdown_file(root_path, report_list)
+
+    def write_markdown_file(self, md_path, report_item_list):
+        if not os.path.exists(md_path):
+            os.makedirs(md_path)
+        md_real_path = os.path.join(md_path, self.file_name)
+        with open(md_real_path, 'w', encoding='utf-8', newline='') as f:
+            f.write("| 研报名称 | 行业 | 机构名称 |\n")
+            f.write("|------|----------|--------------|\n")
+            for report in report_item_list:
+                f.write(
+                    f"| [{report['title']}]({report['pdf_url']}) | {report['industry_name']} | {report['org_name']}| \n")
+
+    def get_today_reports(self):
+        """从数据库获取研报信息"""
+        today_time_str = get_today_time_str()
+        print(f"today: {today_time_str}")
+        select = "title,org_name,publish_date,industry_name,pdf_url"
+        where = "publish_date = '{}'".format(today_time_str)
+
+        sql = "select {} from {} where {}".format(select, self.table_name, where)
+        print(sql)
+        self.cursor.execute(sql)
+        data_items = self.cursor.fetchall()
+        report_list = []
+        for data_item in data_items:
+            report = ReportItem()
+            report['title'] = data_item[0]
+            report['org_name'] = data_item[1]
+            report['publish_date'] = data_item[2]
+            report['industry_name'] = data_item[3]
+            report['pdf_url'] = data_item[4]
+            report_list.append(report)
+        return report_list
 
 
 class ReportCsvPipeline:
