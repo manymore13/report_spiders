@@ -31,6 +31,9 @@ class TodayReportPipeline:
         self.file_name = "today.md"
 
     def open_spider(self, spider):
+        pass
+
+    def check_db(self, spider):
         if hasattr(spider, 'table_name'):
             self.table_name = getattr(spider, 'table_name')
 
@@ -45,8 +48,11 @@ class TodayReportPipeline:
         self.cursor = self.conn.cursor()
 
     def close_spider(self, spider: EastReportSpider):
+        self.check_db(spider)
         report_list = self.get_today_reports()
         self.conn.close()
+        if len(report_list) == 0:
+            return
         settings = spider.settings
         file_store = settings.get("FILES_STORE")
         root_path = os.path.join(file_store, self.table_name)
