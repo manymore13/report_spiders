@@ -4,6 +4,15 @@ import shutil
 import stat
 
 
+def getNumStr(num):
+    num_str = ''
+    if num < 10:
+        num_str = f"0{num}"
+    else:
+        num_str = str(num)
+    return num_str
+
+
 def get_start_end_date(days: int = 30):
     now = datetime.datetime.now()
     end_date = now.strftime("%Y-%m-%d")
@@ -12,7 +21,6 @@ def get_start_end_date(days: int = 30):
 
 
 def delete_directory_contents(directory_path):
-
     if not os.path.exists(directory_path):
         return
 

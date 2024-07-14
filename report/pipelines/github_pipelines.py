@@ -3,13 +3,14 @@ import json
 import logging
 import os
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlite3 import Cursor, Connection
 
 from scrapy.settings import Settings
 
 from report.items import ReportItem
 from report.spiders.east_report import EastReportSpider
+from report.utils import getNumStr
 
 """
     github 专用管道
@@ -18,7 +19,7 @@ from report.spiders.east_report import EastReportSpider
 
 
 def get_today_time_str():
-    time_str = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    time_str = datetime.today().strftime("%Y-%m-%d")
     return time_str
 
 
@@ -66,22 +67,19 @@ class TodayReportPipeline:
         self.write_json_file(root_path, "today.json", report_item_list)
 
         # 按年月路径
-        # now = datetime.now()
-        now = datetime.now() - timedelta(days=2)
+        now = datetime.now()
         year = now.year
         month = now.month
-        month_str = ""
-        if month < 10:
-            month_str = f"0{month}"
-        else:
-            month_str = str(month)
+        day = now.day
+        month_str = getNumStr(month)
+        day_str = getNumStr(day)
         path_components = [root_path, str(year), month_str]
         path = os.path.join(*path_components)
         if not os.path.exists(path):
             os.makedirs(path)
         print(f"Path: {path}")
-        file_name = now.strftime("%Y_%m_%d")
-        self.write_markdown_file(path, f"{file_name}.md", report_item_list)
+        file_name = day_str
+        # self.write_markdown_file(path, f"{file_name}.md", report_item_list)
         self.write_json_file(path, f"{file_name}.json", report_item_list)
 
     def write_markdown_file(self, md_path, file_name, report_item_list):
