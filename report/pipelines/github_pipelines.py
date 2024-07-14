@@ -1,8 +1,9 @@
 import csv
+import json
 import logging
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlite3 import Cursor, Connection
 
 from scrapy.settings import Settings
@@ -17,7 +18,7 @@ from report.spiders.east_report import EastReportSpider
 
 
 def get_today_time_str():
-    time_str = datetime.today().strftime("%Y-%m-%d")
+    time_str = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
     return time_str
 
 
@@ -56,18 +57,52 @@ class TodayReportPipeline:
         settings = spider.settings
         file_store = settings.get("FILES_STORE")
         root_path = os.path.join(file_store, self.table_name)
-        self.write_markdown_file(root_path, report_list)
+        self.writeRecord(root_path, report_list)
 
-    def write_markdown_file(self, md_path, report_item_list):
+    def writeRecord(self, root_path, report_item_list):
+        """增量记录"""
+        # 外面目录
+        self.write_markdown_file(root_path, 'today.md', report_item_list)
+        self.write_json_file(root_path, "today.json", report_item_list)
+
+        # 按年月路径
+        # now = datetime.now()
+        now = datetime.now() - timedelta(days=2)
+        year = now.year
+        month = now.month
+        month_str = ""
+        if month < 10:
+            month_str = f"0{month}"
+        else:
+            month_str = str(month)
+        path_components = [root_path, str(year), month_str]
+        path = os.path.join(*path_components)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        print(f"Path: {path}")
+        file_name = now.strftime("%Y_%m_%d")
+        self.write_markdown_file(path, f"{file_name}.md", report_item_list)
+        self.write_json_file(path, f"{file_name}.json", report_item_list)
+
+    def write_markdown_file(self, md_path, file_name, report_item_list):
         if not os.path.exists(md_path):
             os.makedirs(md_path)
-        md_real_path = os.path.join(md_path, self.file_name)
+        md_real_path = os.path.join(md_path, file_name)
         with open(md_real_path, 'w', encoding='utf-8', newline='') as f:
             f.write("| 研报名称 | 行业 | 机构名称 |\n")
             f.write("|------|----------|--------------|\n")
             for report in report_item_list:
                 f.write(
                     f"| [{report['title']}]({report['pdf_url']}) | {report['industry_name']} | {report['org_name']}| \n")
+
+    def write_json_file(self, path, file_name, report_item_list):
+        if not os.path.exists(path):
+            os.makedirs(path)
+        real_path = os.path.join(path, file_name)
+        items_dicts = [dict(item) for item in report_item_list]
+        json_data = json.dumps(items_dicts, ensure_ascii=False)
+        with open(real_path, "w", encoding='utf-8', newline='') as f:
+            f.write(json_data)
 
     def get_today_reports(self):
         """从数据库获取研报信息"""
@@ -190,3 +225,9 @@ class ReportCsvPipeline:
             result_industry_name_list.append(db_item[0])
         logging.debug("get_all_industry_name: {}".format(result_industry_name_list))
         return result_industry_name_list
+
+
+if __name__ == '__main__':
+    ss = datetime.now().strftime("%Y-%m-%d")
+    print(ss)
+    pass

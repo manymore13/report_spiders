@@ -29,10 +29,10 @@ class EastReportSpider(scrapy.Spider):
     """东方财富行业研报"""
 
     GITHUB_PIPELINES = {
-        "report.pipelines.ReportSqlitePipeline": 300,
+        "report.pipelines.sqlite_pipeline.ReportSqlitePipeline": 300,
         # "report.pipelines.ReportPdfPipeline": 301,
-        "report.github_pipelines.ReportCsvPipeline": 302,
-        "report.github_pipelines.TodayReportPipeline": 303,
+        "report.pipelines.github_pipelines.ReportCsvPipeline": 302,
+        "report.pipelines.github_pipelines.TodayReportPipeline": 303,
     }
 
     custom_settings = {

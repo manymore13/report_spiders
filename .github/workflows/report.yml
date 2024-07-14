@@ -46,7 +46,7 @@ jobs:
       with:
         create-target-branch-if-needed: true
         source-directory: 'gen_report'
-        destination-github-username: 'manymore13'
+        destination-github-username: '52wajueji'
         destination-repository-name: 'report'
         target-branch: main
         commit-message: "东财行业研报更新"
