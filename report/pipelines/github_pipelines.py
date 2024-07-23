@@ -1,3 +1,4 @@
+import base64
 import csv
 import json
 import logging
@@ -65,6 +66,7 @@ class TodayReportPipeline:
         # 外面目录
         self.write_markdown_file(root_path, 'today.md', report_item_list)
         self.write_json_file(root_path, "today.json", report_item_list)
+        self.write_json_file_base64(root_path, "today", report_item_list)
 
         # 按年月路径
         now = datetime.now()
@@ -101,6 +103,20 @@ class TodayReportPipeline:
         json_data = json.dumps(items_dicts, ensure_ascii=False)
         with open(real_path, "w", encoding='utf-8', newline='') as f:
             f.write(json_data)
+
+    def write_json_file_base64(self, path, file_name, report_item_list):
+        if not os.path.exists(path):
+            os.makedirs(path)
+        real_path = os.path.join(path, file_name)
+        items_dicts = [dict(item) for item in report_item_list]
+        json_data = json.dumps(items_dicts, ensure_ascii=False)
+        base64_json_data = base64.b64encode(json_data.encode('utf-8'))
+        with open(real_path, "wb") as f:
+            f.write(base64_json_data)
+        # with open(real_path, 'rb') as file:
+        #     data = file.read()
+        # decode_data = base64.b64decode(data)
+        # print("---"+decode_data.decode('utf-8'))
 
     def get_today_reports(self):
         """从数据库获取研报信息"""
