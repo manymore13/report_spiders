@@ -11,7 +11,7 @@ from scrapy.settings import Settings
 
 from report.items import ReportItem
 from report.spiders.east_report import EastReportSpider
-from report.utils import getNumStr
+from report.utils import getNumStr,get_start_end_date
 
 """
     github 专用管道
@@ -24,8 +24,8 @@ def get_today_time_str():
     return time_str
 
 
-class TodayReportPipeline:
-    """今日日报"""
+class JsonReportPipeline:
+    """json格式日报"""
 
     def __init__(self):
         self.cursor = None
@@ -45,44 +45,54 @@ class TodayReportPipeline:
         if not os.path.exists(sqlite_db_path):
             os.makedirs(sqlite_db_path)
         db_name = settings.get("SQLITE_DB_NAME", "report.db")
-        logging.debug("TodayReportPipeline: github db_name " + db_name)
+        logging.debug("JsonReportPipeline: github db_name " + db_name)
         # 连接到 SQLite 数据库
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
 
     def close_spider(self, spider: EastReportSpider):
         self.check_db(spider)
-        report_list = self.get_today_reports()
-        self.conn.close()
-        if len(report_list) == 0:
-            return
+        today_time_str = get_today_time_str()
+        today_report_list = self.get_reports(today_time_str, today_time_str)
         settings = spider.settings
         file_store = settings.get("FILES_STORE")
         root_path = os.path.join(file_store, self.table_name)
-        self.writeRecord(root_path, report_list)
+        if len(today_report_list) == 0:
+            self.writeRecord(root_path, 'today', today_report_list)
+            return
+        # 月报
+        start_date, end_date = get_start_end_date(30)
+        month_report_list = self.get_reports(start_date, end_date)
+        self.writeRecord(root_path, 'month', month_report_list)
 
-    def writeRecord(self, root_path, report_item_list):
+        # 周报
+        start_date, end_date = get_start_end_date(7)
+        week_report_list = self.get_reports(start_date, end_date)
+        self.writeRecord(root_path, 'week', week_report_list)
+        self.conn.close()
+
+    def writeRecord(self, root_path, file_name, report_item_list):
         """增量记录"""
         # 外面目录
-        self.write_markdown_file(root_path, 'today.md', report_item_list)
-        self.write_json_file(root_path, "today.json", report_item_list)
-        self.write_json_file_base64(root_path, "today", report_item_list)
+        self.write_markdown_file(root_path, f'{file_name}.md', report_item_list)
+        self.write_json_file(root_path, f"{file_name}.json", report_item_list)
+        self.write_json_file_base64(root_path, f"{file_name}", report_item_list)
 
         # 按年月路径
-        now = datetime.now()
-        year = now.year
-        month = now.month
-        day = now.day
-        month_str = getNumStr(month)
-        day_str = getNumStr(day)
-        path_components = [root_path, str(year), month_str]
-        path = os.path.join(*path_components)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        print(f"Path: {path}")
-        file_name = day_str
-        # self.write_markdown_file(path, f"{file_name}.md", report_item_list)
-        self.write_json_file(path, f"{file_name}.json", report_item_list)
+        # now = datetime.now()
+        # year = now.year
+        # month = now.month
+        # day = now.day
+        # month_str = getNumStr(month)
+        # day_str = getNumStr(day)
+        # path_components = [root_path, str(year), month_str]
+        # path = os.path.join(*path_components)
+        # if not os.path.exists(path):
+        #     os.makedirs(path)
+        # print(f"Path: {path}")
+        # file_name = day_str
+        # # self.write_markdown_file(path, f"{file_name}.md", report_item_list)
+        # self.write_json_file(path, f"{file_name}.json", report_item_list)
 
     def write_markdown_file(self, md_path, file_name, report_item_list):
         if not os.path.exists(md_path):
@@ -118,14 +128,13 @@ class TodayReportPipeline:
         # decode_data = base64.b64decode(data)
         # print("---"+decode_data.decode('utf-8'))
 
-    def get_today_reports(self):
+    def get_reports(self, start_date, end_date):
         """从数据库获取研报信息"""
-        today_time_str = get_today_time_str()
-        print(f"today: {today_time_str}")
+        print(f"query date: {start_date}_{end_date}")
         select = "title,org_name,publish_date,industry_name,pdf_url"
-        where = "publish_date = '{}'".format(today_time_str)
+        where = "publish_date BETWEEN '{}' AND '{}'".format(start_date, end_date)
 
-        sql = "select {} from {} where {}".format(select, self.table_name, where)
+        sql = "select {} from {} where {} ORDER BY publish_date DESC".format(select, self.table_name, where)
         print(sql)
         self.cursor.execute(sql)
         data_items = self.cursor.fetchall()
