@@ -57,9 +57,10 @@ class JsonReportPipeline:
         settings = spider.settings
         file_store = settings.get("FILES_STORE")
         root_path = os.path.join(file_store, self.table_name)
-        if len(today_report_list) == 0:
+
+        if len(today_report_list) != 0:
             self.writeRecord(root_path, 'today', today_report_list)
-            return
+
         # 月报
         start_date, end_date = get_start_end_date(30)
         month_report_list = self.get_reports(start_date, end_date)

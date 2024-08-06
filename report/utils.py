@@ -3,6 +3,14 @@ import os
 import shutil
 import stat
 
+create_industry_view = '''
+CREATE VIEW IF NOT EXISTS industry AS
+    SELECT industry_name,
+           COUNT( * ) AS count
+      FROM eastmoney
+     GROUP BY industry_name
+     ORDER BY count DESC;
+'''
 
 def getNumStr(num):
     num_str = ''

@@ -13,6 +13,8 @@ from scrapy import signals
 from scrapy.http import TextResponse
 from scrapy.settings import Settings
 
+from report.utils import create_industry_view
+
 
 class ReportSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -182,6 +184,7 @@ class ReportPdfExitMiddleware:
         # 连接到 SQLite 数据库
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
+        self.cursor.execute(create_industry_view)
 
     def close_spider(self, spider):
         # 断开数据库连接
