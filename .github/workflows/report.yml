@@ -32,6 +32,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        
+    - name: Set up SSH key for cloning repoA
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_DEPLOY_KEY }}
+      
+    - name: Add github.com to known_hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan github.com >> ~/.ssh/known_hosts   
+        
     - name: clone report
       run: |
         chmod +x clone_report.sh
@@ -50,6 +61,6 @@ jobs:
         destination-repository-name: 'report'
         target-branch: main
         commit-message: "东财行业研报更新"
-        
+            
           
     
