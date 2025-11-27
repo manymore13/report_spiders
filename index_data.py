@@ -26,25 +26,25 @@ data_list = []
 for index_info in index_info_list:
     print(index_info)
     data_list.append({
-        "index_code":index_info["index_code"],
-        "index_name":index_info["name"],
+        "code":index_info["index_code"],
+        "name":index_info["name"],
         "ttype":index_info["ttype"],
         "pe":index_info["pe"],
         "pb":index_info["pb"],
-        "pe_percentile":index_info["pe_percentile"],
-        "pb_percentile":index_info["pb_percentile"],
+        "pePercentile":index_info["pe_percentile"],
+        "pbPercentile":index_info["pb_percentile"],
         "roe":index_info["roe"],
         "yeild":index_info["yeild"],
         "ts":index_info["ts"],
-        "eva_type":index_info["eva_type"],
-        "eva_type_int":index_info["eva_type_int"],
-        "bond_yeild":index_info["bond_yeild"],
-        "begin_at":index_info["begin_at"],
-        "created_at":index_info["created_at"],
-        "updated_at":index_info["updated_at"],
-        "pb_flag":index_info["pb_flag"],
-        "pb_over_history":index_info["pb_over_history"],
-        "pe_over_history":index_info["pe_over_history"],
+        "evaType":index_info["eva_type"],
+        "evaTypeInt":index_info["eva_type_int"],
+        "bondYeild":index_info["bond_yeild"],
+        "beginAt":index_info["begin_at"],
+        "createdAt":index_info["created_at"],
+        "updatedAt":index_info["updated_at"],
+        "pbFlag":index_info["pb_flag"],
+        "pbOverHistory":index_info["pb_over_history"],
+        "peOverHistory":index_info["pe_over_history"],
         "date":index_info["date"],
     })
 response.close()
@@ -54,6 +54,7 @@ if not os.path.exists(json_path):
     os.makedirs(json_path)
 with open(f"{json_path}indx_data.json", "w") as file:
     json.dump(data_list, file)
+
 
 
 
