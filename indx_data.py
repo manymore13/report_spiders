@@ -50,8 +50,12 @@ for index_info in index_info_list:
 response.close()
 json_data = json.dumps(data_list)
 print(json_data)
-with open("indx_data.json", "w") as file:
+json_path = './gen_report/'
+if not os.path.exists(json_path):
+    os.makedirs(json_path)
+with open(f"{json_path}indx_data.json", "w") as file:
     json.dump(json_data, file)
+
 
 
 
