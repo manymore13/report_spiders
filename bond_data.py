@@ -17,7 +17,7 @@ def get_cn_us_10y():
         "ps": 5,
     }
     r = requests.get(url, params=params, timeout=15)
-    print('bond data '+r.status_code)
+    print(f"bond data response status code:'+r.status_code")
     if r.status_code != 200:
         print("get_cn_us_10y exit")
         exit()
