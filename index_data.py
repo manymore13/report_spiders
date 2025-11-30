@@ -15,7 +15,7 @@ headers = {
     "Cache-Control":"no-cache"
 }
 response = requests.get(gz_url, headers = headers)
-print(response.status_code)
+print('index data ' + response.status_code)
 if response.status_code != 200:
     print("exit")
     exit()
@@ -54,6 +54,7 @@ if not os.path.exists(json_path):
     os.makedirs(json_path)
 with open(f"{json_path}index_data.json", "w") as file:
     json.dump(data_list, file)
+
 
 
 
