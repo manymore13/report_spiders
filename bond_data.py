@@ -59,14 +59,14 @@ def get_latest_yield_data():
 latest_data = get_latest_yield_data()
 
 # 转换为JSON格式
-json_data = json.dumps(latest_data, indent=2, ensure_ascii=False)
+# json_data = json.dumps(latest_data, indent=2, ensure_ascii=False)
 
 print("最新中美十年期国债收益率数据（JSON对象）：")
-print(json_data)
+print(latest_data)
 json_path = './gen_report/'
 if not os.path.exists(json_path):
     os.makedirs(json_path)
 with open(f"{json_path}bond_data.json", "w") as file:
-    json.dump(json_data, file)
+    json.dump(latest_data, file)
 
 
