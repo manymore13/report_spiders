@@ -52,8 +52,9 @@ print(data_list)
 json_path = './gen_report/'
 if not os.path.exists(json_path):
     os.makedirs(json_path)
-with open(f"{json_path}indx_data.json", "w") as file:
+with open(f"{json_path}index_data.json", "w") as file:
     json.dump(data_list, file)
+
 
 
 
