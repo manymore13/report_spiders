@@ -17,7 +17,7 @@ def get_cn_us_10y():
         "ps": 5,
     }
     r = requests.get(url, params=params, timeout=15)
-    print(r.status_code)
+    print('bond data '+r.status_code)
     if r.status_code != 200:
         print("get_cn_us_10y exit")
         exit()
@@ -53,18 +53,19 @@ def get_latest_yield_data():
 
     return result
 
+# 获取最新数据
+latest_data = get_latest_yield_data()
 
-if __name__ == "__main__":
-    # 获取最新数据
-    latest_data = get_latest_yield_data()
+# 转换为JSON格式
+json_data = json.dumps(latest_data, indent=2, ensure_ascii=False)
 
-    # 转换为JSON格式
-    json_data = json.dumps(latest_data, indent=2, ensure_ascii=False)
+print("最新中美十年期国债收益率数据（JSON对象）：")
+print(json_data)
+json_path = './gen_report/'
+if not os.path.exists(json_path):
+    os.makedirs(json_path)
+with open(f"{json_path}bond_data.json", "w") as file:
+    json.dump(json_data, file)
 
-    print("最新中美十年期国债收益率数据（JSON对象）：")
-    print(json_data)
-    json_path = './gen_report/'
-    if not os.path.exists(json_path):
-        os.makedirs(json_path)
-    with open(f"{json_path}bond_data.json", "w") as file:
-        json.dump(json_data, file)
+
+    
