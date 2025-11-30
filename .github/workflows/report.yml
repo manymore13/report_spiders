@@ -6,6 +6,7 @@ name: 研报抓取
 on:
   schedule:
     - cron: '0 4 * * *'
+    - cron: '1 12 * * *'
   push:
     branches: [ "main" ]
   pull_request:
