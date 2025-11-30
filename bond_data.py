@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import json
 
+print("最新中美十年期国债收益率数据：")
 
 def get_cn_us_10y():
     url = "http://datacenter.eastmoney.com/api/data/get"
