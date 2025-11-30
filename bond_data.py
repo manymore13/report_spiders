@@ -17,7 +17,7 @@ def get_cn_us_10y():
         "ps": 5,
     }
     r = requests.get(url, params=params, timeout=15)
-    print(f"bond data response status code:'+r.status_code")
+    print(f"bond data response status code: {r.status_code}")
     if r.status_code != 200:
         print("get_cn_us_10y exit")
         exit()
@@ -53,6 +53,7 @@ def get_latest_yield_data():
 
     return result
 
+
 # 获取最新数据
 latest_data = get_latest_yield_data()
 
@@ -68,4 +69,3 @@ with open(f"{json_path}bond_data.json", "w") as file:
     json.dump(json_data, file)
 
 
-    
