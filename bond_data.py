@@ -17,6 +17,10 @@ def get_cn_us_10y():
         "ps": 5,
     }
     r = requests.get(url, params=params, timeout=15)
+    print(r.status_code)
+    if r.status_code != 200:
+        print("get_cn_us_10y exit")
+        exit()
     data = r.json()["result"]["data"]
     df = pd.DataFrame(data)
 
