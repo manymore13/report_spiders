@@ -15,7 +15,7 @@ def get_cn_us_10y():
         "sr": "-1",
         "token": "894050c76af8597a853f5b408b759f5d",
         "p": 1,
-        "ps": 5,
+        "ps": 50,
     }
     r = requests.get(url, params=params, timeout=15)
     print(f"bond data response status code: {r.status_code}")
