@@ -72,7 +72,7 @@ def saveFile(latest_data):
     if not os.path.exists(json_path):
         os.makedirs(json_path)
     with open(f"{json_path}bond_data.json", "w") as file:
-        json.dump(json_data, file)
+        json.dump(latest_data, file)
 
 
 # 获取最新数据
