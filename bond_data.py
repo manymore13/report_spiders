@@ -1,3 +1,4 @@
+import numbers
 import os
 
 import requests
@@ -55,18 +56,25 @@ def get_latest_yield_data():
     return result
 
 
+def saveFile(latest_data):
+    cn_10y = isinstance(latest_data['cn_10y'], numbers.Number)
+    us_10y = isinstance(latest_data['us_10y'], numbers.Number)
+    print(str(cn_10y) + " " + str(us_10y))
+    if not (cn_10y and us_10y):
+        print("error yield data")
+        return
+    # 转换为JSON格式
+    json_data = json.dumps(latest_data, indent=2, ensure_ascii=False)
+
+    print("最新中美十年期国债收益率数据（JSON对象）：")
+    print(json_data)
+    json_path = './gen_report/'
+    if not os.path.exists(json_path):
+        os.makedirs(json_path)
+    with open(f"{json_path}bond_data.json", "w") as file:
+        json.dump(json_data, file)
+
+
 # 获取最新数据
-latest_data = get_latest_yield_data()
-
-# 转换为JSON格式
-# json_data = json.dumps(latest_data, indent=2, ensure_ascii=False)
-
-print("最新中美十年期国债收益率数据（JSON对象）：")
-print(latest_data)
-json_path = './gen_report/'
-if not os.path.exists(json_path):
-    os.makedirs(json_path)
-with open(f"{json_path}bond_data.json", "w") as file:
-    json.dump(latest_data, file)
-
-
+latest_yield_data = get_latest_yield_data()
+saveFile(latest_yield_data)
