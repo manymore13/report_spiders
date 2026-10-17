@@ -1,8 +1,4 @@
 ﻿requests==2.31.0
 Scrapy==2.11.0
-# 本文件只声明直接依赖，CI 实际安装的是同目录下的 requirements.lock.txt（完整锁定）。
-# Scrapy 2.11 仍从 w3lib 引入私有符号 _safe_chars / _unquotepath，
-# w3lib 2.5.0 起已移除，导致 "ImportError: cannot import name '_safe_chars'"，
-# 故将 w3lib 锁定在 2.5.0 之前（升级 Scrapy 到 2.13+ 后可去掉此行）。
-w3lib<2.5
+w3lib==2.4.1
 pandas>=0.25
